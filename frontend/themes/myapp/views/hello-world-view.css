@@ -1,0 +1,17 @@
+.hello-world-view {
+     display: grid;
+     padding-left: 33%;
+     padding-right: 33%;
+     padding-top: 10%;
+     grid-template-areas:
+             "header"
+             "nav"
+             "main"
+             "subcontent"
+             "footer";
+     font-family: sans-serif;
+     font-weight: bold;
+
+}
+
+
