@@ -4,6 +4,7 @@ import com.example.application.data.entity.SamplePerson;
 import com.example.application.data.service.SamplePersonService;
 import com.example.application.views.main.MainView;
 import com.example.application.views.main.UserData;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -86,7 +87,7 @@ public class Profile extends VerticalLayout {
 
         progressBar.setValue(((float)progress/10));
 
-        add(progressBar);
+        add(new Text("Profile Progress"), progressBar);
 
         AutoFill();
         this.person = new UserData();

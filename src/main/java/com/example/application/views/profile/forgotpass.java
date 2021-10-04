@@ -39,7 +39,7 @@ public class forgotpass extends Div {
         main.add(body);
         body.add(username);
 
-        HorizontalLayout buttonLayout = new HorizontalLayout();
+        VerticalLayout buttonLayout = new VerticalLayout();
 
         Button ok = new Button("Enter", buttonClickEvent -> {
 
@@ -51,10 +51,10 @@ public class forgotpass extends Div {
 
             }else if(!Ques.getValue().isEmpty() && newPass.getValue().isEmpty()){
 
-                Notification.show("Checking if the answer matches");
+                //Notification.show("Checking if the answer matches");
 
                 if((!SecretAnswer.isEmpty()) && SecretAnswer.toLowerCase().equals(answer.getValue().toLowerCase()) ){
-                    Notification.show("Added new fields");
+
                     body.add(newPass,confirmPass);
                 }
 
@@ -63,7 +63,6 @@ public class forgotpass extends Div {
                if( personService.resetPassword(newPass.getValue(), username.getValue())){
                     Notification.show("Password reset Successful");
                     UI.getCurrent().navigate("login");
-                    Notification.show("Enter your new credentials");
                };
 
             }else

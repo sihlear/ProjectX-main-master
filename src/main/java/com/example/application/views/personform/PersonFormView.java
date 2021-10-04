@@ -45,7 +45,7 @@ public class PersonFormView extends Div {
     private ComboBox<String> Gender = new ComboBox<>("Gender");
 
     private Div linkToPopi = new Div();
-    Anchor link = new Anchor("https://popia.co.za/act/", "Click here to accept Popia Act");
+    Anchor link = new Anchor("https://popia.co.za/act/", "By Clicking the checkbox here you accept Popia Act found in this link");
     private Checkbox popi = new Checkbox();
 
 
