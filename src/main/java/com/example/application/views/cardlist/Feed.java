@@ -1,13 +1,19 @@
 package com.example.application.views.cardlist;
 
+import com.cloudmersive.client.AnalyticsApi;
+import com.cloudmersive.client.invoker.ApiClient;
+import com.cloudmersive.client.invoker.ApiException;
+import com.cloudmersive.client.invoker.Configuration;
+import com.cloudmersive.client.invoker.auth.ApiKeyAuth;
+import com.cloudmersive.client.model.HateSpeechAnalysisRequest;
+import com.cloudmersive.client.model.HateSpeechAnalysisResponse;
 import com.example.application.data.service.SamplePersonService;
 import com.example.application.views.main.MainView;
 import com.example.application.views.main.UserData;
+import com.vaadin.event.MouseEvents;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -26,19 +32,22 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
+import jdk.jfr.Event;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.io.ByteArrayInputStream;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+//Hate speech recognition API
 
 @Route(value = "card-list", layout = MainView.class)
 @PageTitle("Home")
@@ -69,6 +78,19 @@ public class Feed extends Div implements AfterNavigationObserver {
 
     }
 
+    private static class meeting extends Event implements EventListener {
+
+        protected String  title;
+        protected String  description;
+        protected String  link;
+        protected String starttime;
+        protected String endtime;
+        private  String hoster;
+
+
+
+    }
+
     public static UserData person = new UserData("User");
 
     //now we have to put all those posts we got from the database to the grid(feed) below
@@ -83,7 +105,7 @@ public class Feed extends Div implements AfterNavigationObserver {
 
     public Feed() {
 
-        //layout.getStyle().set("width","45%");
+        layout.getStyle().set("width","45%");
         person = (UserData) VaadinSession.getCurrent().getAttribute("LoggedInUser");
         addClassName("card-list-view");
 
@@ -97,7 +119,7 @@ public class Feed extends Div implements AfterNavigationObserver {
         FullCalendar fullCalendar = new FullCalendar();
         fullCalendar.getStyle().set("width","100%");
         fullCalendar.setFirstDay(DayOfWeek.MONDAY);
-        fullCalendar.getStyle().set("height","200px");
+        fullCalendar.getStyle().set("height","100px");
         fullCalendar.addTimeslotsSelectedListener((event) -> {
             // react on the selected timeslot, for instance create a new instance and let the user edit it
             Entry entry = new Entry();
@@ -167,7 +189,7 @@ public class Feed extends Div implements AfterNavigationObserver {
         fullCalendar.setHeightAuto();
         fullCalendar.setSizeFull();
 
-        HL.add(layout,feed);
+        HL.add(feed,layout);
         add(HL);
 
     }
@@ -270,7 +292,8 @@ public class Feed extends Div implements AfterNavigationObserver {
         links.addAll(extractUrls(post.getPostContent()));
         String txt = post.getPostContent();
         Div div = new Div();
-        Anchor[] Postlinks ;
+        Span postC = new Span(div);
+
         if(!links.isEmpty()){
 
 
@@ -285,10 +308,14 @@ public class Feed extends Div implements AfterNavigationObserver {
                     div.add(txt.substring(txt.indexOf(links.get(i))).replace(links.get(i),""));
                 }
             }
+        }else{
+            postC.add(txt);
         }
-        Span postC = new Span(div);
         postC.addClassName("post");
 
+        if( containsHateSpeech(txt) > 0.1){
+            postC.getStyle().set("background-color","red");
+        }
         //picture content
         if(!(post.getMedia() == null))
         {
@@ -310,7 +337,7 @@ public class Feed extends Div implements AfterNavigationObserver {
         actions.setSpacing(false);
         actions.getThemeList().add("spacing-s");
 
-    //Reactions, so this part is the one that has the user reactions but for now if we click
+        //Reactions, so this part is the one that has the user reactions but for now if we click
         // it wont do anything ,so we need to add some e->{}(click events)
         //
 
@@ -409,7 +436,33 @@ public class Feed extends Div implements AfterNavigationObserver {
         description.add(header, postC, actions);
         card.add( image, description);
 
+
+
         return card;
+    }
+
+    private double containsHateSpeech(String txt) {
+
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+// Configure API key authorization: Apikey
+        ApiKeyAuth Apikey = (ApiKeyAuth) defaultClient.getAuthentication("Apikey");
+        Apikey.setApiKey("25bf2682-5daf-42b2-bcc7-1e78409ea010");
+// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
+        //Apikey.setApiKeyPrefix("25bf2682-5daf-42b2-bcc7-1e78409ea010");
+        AnalyticsApi apiInstance = new AnalyticsApi();
+        HateSpeechAnalysisRequest input = new HateSpeechAnalysisRequest(); // HateSpeechAnalysisRequest | Input hate speech analysis request
+        input.setTextToAnalyze(txt);
+
+        try {
+            HateSpeechAnalysisResponse result = apiInstance.analyticsHateSpeech(input);
+            return result.getHateSpeechScoreResult();
+        } catch (ApiException e) {
+            Notification.show("Exception when calling AnalyticsApi#analyticsHateSpeech");
+            e.printStackTrace();
+        }
+
+        return 0;
+
     }
 
     @Override

@@ -34,20 +34,18 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.component.textfield.TextField;
 
-@Route(value = "master-detail/:samplePersonID?/:action?(edit)", layout = MainView.class)
-@PageTitle("Master-Detail")
+@Route(value = "Admin", layout = MainView.class)
+@PageTitle("Admin")
 public class MasterDetailView extends Div implements BeforeEnterObserver {
 
     private final String SAMPLEPERSON_ID = "samplePersonID";
-    private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "master-detail/%d/edit";
 
-    private Grid<SamplePerson> grid = new Grid<>(SamplePerson.class, true);
+    private Grid<UserData> grid = new Grid<>(UserData.class, true);
 
     private TextField firstName;
     private TextField lastName;
     private TextField email;
     private TextField phone;
-    private DatePicker dateOfBirth;
     private TextField occupation;
     private Checkbox important;
 
@@ -78,7 +76,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         grid.addColumn("email").setAutoWidth(true);
         grid.addColumn("phone").setAutoWidth(true);
         grid.addColumn("dateOfBirth").setAutoWidth(true);
-        grid.addColumn("occupation").setAutoWidth(true);*/
+        grid.addColumn("occupation").setAutoWidth(true);
         TemplateRenderer<SamplePerson> importantRenderer = TemplateRenderer.<SamplePerson>of(
                 "<iron-icon hidden='[[!item.important]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.important]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
                 .withProperty("important", SamplePerson::isImportant);
@@ -125,7 +123,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
             } catch (ValidationException validationException) {
                 Notification.show("An exception happened while trying to store the samplePerson details.");
             }
-        });
+        });*/
 
     }
 
@@ -162,11 +160,11 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         lastName = new TextField("Last Name");
         email = new TextField("Email");
         phone = new TextField("Phone");
-        dateOfBirth = new DatePicker("Date Of Birth");
+
         occupation = new TextField("Occupation");
         important = new Checkbox("Important");
         important.getStyle().set("padding-top", "var(--lumo-space-m)");
-        Component[] fields = new Component[]{firstName, lastName, email, phone, dateOfBirth, occupation, important};
+        Component[] fields = new Component[]{firstName, lastName, email, phone , occupation, important};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");

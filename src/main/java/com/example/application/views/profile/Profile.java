@@ -186,9 +186,9 @@ public class Profile extends VerticalLayout {
 
             }
             else{
-                Notification.show(" Make sure all the fields are filled in");
+                Notification.show(" Make sure all the fields are filled in",800, Notification.Position.MIDDLE);
             }
-            Notification.show("Button clicked");
+
             if(personService.UpdateProfile(person)){
                 person = personService.getUser();
                 UI.getCurrent().navigate("card-list");
