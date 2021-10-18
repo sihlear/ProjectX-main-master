@@ -2,6 +2,7 @@
 @import url('./views/hello-world-view.css');
 @import url('./views/card-list-view.css');
 @import url('./views/person-form-view.css');
+@import url('./views/MasterDetailView.css');
 @import url('lumo-css-framework/all-classes.css');    html {
       --lumo-font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono","AVENIR", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
       --lumo-body-text-color: hsla(48, 0%, 0%, 0.94);

@@ -121,6 +121,56 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
         return users;
     }
 
+    public static List<UserData> getEligibleUsers(String skillname)
+    {
+        List<UserData> users = new ArrayList<>();
+
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
+
+            //creating connection
+
+            Connection con = DriverManager.getConnection(url);
+
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("select * from mindworxdb.users where NameOfUser like "+"'"+skillname+"%'" );
+
+            //get all users online
+            while (rs.next()) {
+
+                UserData person = new UserData();
+
+                person.setEmail(rs.getString(1));
+                person.setLastName(!rs.getString(7).toString().equals(null)? rs.getString(7):"");
+                person.setFirstName(!rs.getString(8).toString().equals(null)? rs.getString(8):"");
+
+                //get profile picture !(post.getMedia()== null)?
+                byte[] decodedBytes = !(rs.getBlob(13) == null)?
+                        (rs.getBlob(13).getBytes(1, (int) rs.getBlob(13).length())):null;
+                person.setProfile(decodedBytes);
+
+                byte[] decodedBytes1 = !(rs.getBlob(14) == null)?
+                        (rs.getBlob(14).getBytes(1, (int) rs.getBlob(14).length())):null;
+                person.setCv(decodedBytes1);
+
+                person.setSkills(rs.getString(15).toString());
+                users.add(person);
+
+            }
+
+            con.close();
+
+        } catch (SQLException throwables) {
+            Notification.show("Exception is :" + throwables);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+
 
 
     public static void Like(MainView.Post post) {

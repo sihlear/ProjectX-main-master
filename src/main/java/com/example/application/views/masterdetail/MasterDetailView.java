@@ -7,6 +7,7 @@ import com.example.application.data.service.SamplePersonService;
 
 import com.example.application.views.main.UserData;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.button.Button;
@@ -15,9 +16,12 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -57,18 +61,34 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
     private SamplePerson samplePerson;
 
     private SamplePersonService samplePersonService;
+    private VerticalLayout routes = new VerticalLayout();
 
+    VerticalLayout pageOnDisplay = new VerticalLayout();
     public MasterDetailView(@Autowired SamplePersonService samplePersonService) {
         addClassNames("master-detail-view", "flex", "flex-col", "h-full");
         this.samplePersonService = samplePersonService;
         // Create UI
+        HorizontalLayout container = new HorizontalLayout();
+        VerticalLayout tabs = new VerticalLayout(); // this one will contain the navigation between views(options for the admin)
+        ;// this will contain the actual view
+        addRoutes();
+        tabs.add(routes);
+        tabs.getStyle().set("width","25%");
+        container.add(tabs,pageOnDisplay);
+
+        pageOnDisplay.removeAll();
+        pageOnDisplay.add(createJobPost());
+
+
         SplitLayout splitLayout = new SplitLayout();
         splitLayout.setSizeFull();
 
-        createGridLayout(splitLayout);
-        createEditorLayout(splitLayout);
+        //createGridLayout(splitLayout);
+        //createEditorLayout(splitLayout);
 
-        add(splitLayout);
+        add(container);
+
+
 
        /* // Configure Grid
         grid.addColumn("firstName").setAutoWidth(true);
@@ -125,6 +145,89 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
             }
         });*/
 
+    }
+
+    private void addRoutes() {
+
+        Text JP = new Text("Job Post");
+        Div top = new Div();
+        top.addClickListener(event -> {
+
+            top.getStyle().set("background","orange");
+            pageOnDisplay.removeAll();
+            pageOnDisplay.add(createJobPost());
+
+            Notification.show(" On click ",1000, Notification.Position.MIDDLE);
+
+        });
+        top.add(JP);
+        top.getStyle().set("width","100%");
+
+
+        Text  PR = new Text("Password Reset");
+        Div top1 = new Div();
+        top1.add(PR);
+        top1.getStyle().set("width","100%");
+
+
+        Text RA = new Text("Recruit Alumni");
+        Div top2 = new Div();
+        top2.add(RA);
+        top2.getStyle().set("width","100%");
+        top2.addClickListener(event -> {
+
+            top2.getStyle().set("background","orange");
+
+            pageOnDisplay.removeAll();
+            pageOnDisplay.add(createSkillSearch());
+
+        });
+
+        Text AN = new Text("Analytics");
+        Div top3 = new Div();
+        top3.add(AN);
+        top3.getStyle().set("width","100%");
+        routes.add(top,top1,top2
+                ,top3);
+
+        routes.getStyle().set("height","20%");
+
+
+    }
+
+    private VerticalLayout createJobPost() {
+
+        VerticalLayout jobPost = new VerticalLayout();
+
+        HorizontalLayout top = new HorizontalLayout();
+        top.add(new TextField("Job Title "));
+
+        HorizontalLayout middle = new HorizontalLayout();
+        middle.add(new TextArea("Description"));
+
+        HorizontalLayout bottom = new HorizontalLayout();
+        bottom.add(new TextArea("Skills"));
+
+        jobPost.add(top,middle,bottom, new Button("Post",e->{
+            Notification.show("Job posted",500, Notification.Position.MIDDLE);
+        }));
+        return  jobPost;
+    }
+
+    private VerticalLayout createSkillSearch(){
+        VerticalLayout layout = new VerticalLayout();
+
+        Div top = new Div();
+        TextField search = new TextField("Skill");
+        top.add(search);
+
+        Grid<UserData> eligibleUsers = new Grid();
+        SamplePersonService service = new SamplePersonService();
+        layout.add(top,eligibleUsers,new Button("Search",e ->{
+            eligibleUsers.setItems(service.getEligibleUsers(search.getValue()));
+        }));
+
+        return layout;
     }
 
     @Override
