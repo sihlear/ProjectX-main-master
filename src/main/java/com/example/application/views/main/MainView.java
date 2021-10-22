@@ -69,7 +69,7 @@ public class MainView extends AppLayout {
         private byte[] image;
         private String name;
         private String Username;
-        private String postContent;
+        public String postContent;
         private byte[] media;
 
         private String date;

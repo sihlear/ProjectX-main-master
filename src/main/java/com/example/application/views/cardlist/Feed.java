@@ -10,7 +10,6 @@ import com.cloudmersive.client.model.HateSpeechAnalysisResponse;
 import com.example.application.data.service.SamplePersonService;
 import com.example.application.views.main.MainView;
 import com.example.application.views.main.UserData;
-import com.vaadin.event.MouseEvents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -38,6 +37,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.io.ByteArrayInputStream;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -78,31 +78,6 @@ public class Feed extends Div implements AfterNavigationObserver {
 
     }
 
-    private static class meeting extends Event implements EventListener {
-
-        protected String  title;
-        protected String  description;
-        protected String  link;
-        protected String starttime;
-        protected String endtime;
-        private  String hoster;
-
-
-
-    }
-
-    public static UserData person = new UserData("User");
-
-    //now we have to put all those posts we got from the database to the grid(feed) below
-    //but before we do that we need to make sure that the post should have the like,share and click buttons
-    Grid<MainView.Post> grid = new Grid<>();
-
-    HorizontalLayout HL = new HorizontalLayout();
-    SamplePersonService personService = new SamplePersonService();
-    AfterNavigationEvent nav = null;
-    VerticalLayout layout =  new VerticalLayout();
-    VerticalLayout feed = new VerticalLayout();
-
     public Feed() {
 
         layout.getStyle().set("width","45%");
@@ -117,9 +92,9 @@ public class Feed extends Div implements AfterNavigationObserver {
         // posts from the database, and find a way to add those posts to our UI
         grid.addComponentColumn(post -> createCard(post));
         FullCalendar fullCalendar = new FullCalendar();
-        fullCalendar.getStyle().set("width","100%");
+        fullCalendar.getStyle().set("width","85%");
         fullCalendar.setFirstDay(DayOfWeek.MONDAY);
-        fullCalendar.getStyle().set("height","100px");
+        fullCalendar.getStyle().set("height","50px");
         fullCalendar.addTimeslotsSelectedListener((event) -> {
             // react on the selected timeslot, for instance create a new instance and let the user edit it
             Entry entry = new Entry();
@@ -168,8 +143,8 @@ public class Feed extends Div implements AfterNavigationObserver {
                 entry.setDescription(description.getText());
                 entry.setTitle(title.getValue());
                 //entry.setAllDay();
-
-                shareEvent(title.getValue(),start.getValue(),description.getText());
+                Notification.show("Text is "+description.getText().toString());
+                shareEvent(title.getValue(),start.getValue(),description.getText().toString(),endDate.getValue(),person);
                 entry.setColor("dodgerblue");
                 fullCalendar.addEntry(entry);
             });
@@ -194,59 +169,58 @@ public class Feed extends Div implements AfterNavigationObserver {
 
     }
 
-    private void shareEvent(String titl,LocalDateTime start,String descr) {
-/*
-        if(!TextContent.getValue().trim().isEmpty()){
+    public static UserData person = new UserData("User");
+
+    //now we have to put all those posts we got from the database to the grid(feed) below
+    //but before we do that we need to make sure that the post should have the like,share and click buttons
+    Grid<MainView.Post> grid = new Grid<>();
+
+    HorizontalLayout HL = new HorizontalLayout();
+    SamplePersonService personService = new SamplePersonService();
+    AfterNavigationEvent nav = null;
+    VerticalLayout layout =  new VerticalLayout();
+    VerticalLayout feed = new VerticalLayout();
+
+    private void shareEvent(String titl,LocalDateTime start,String descr,LocalDateTime endDate,UserData user) {
+
+
+        String[] links =
+        {   "https://meet.google.com/xcg-rboq-piy",
+                "https://meet.google.com/xba-hshs-zky",
+            "https://meet.google.com/cme-ujqd-vpk",
+            "https://meet.google.com/syk-jtxw-trz",
+            "https://meet.google.com/njw-xwsv-kaj",
+            "https://meet.google.com/vra-vgvf-qfn"
+         };
+        Notification.show("Description is "+descr);
+
+        String eventDetails = "Title : "+titl+" \n " +
+                "description : "+descr+" "+
+                "Date and time : "+start.toString();
+        eventDetails.concat("\n "+links[1]);
+
+        personService.createEvent(titl, person.getEmail(), descr, start.toString(),links[1].toString(), endDate.toString());
+
+        if(!eventDetails.isEmpty()){
 
             MainView.Post postContent = new MainView.Post();
 
             postContent.setName(user.getFirstName()+" "+user.getLastName());
-            postContent.postContent = TextContent.getValue();
+            postContent.postContent = eventDetails;
 
-            postContent.image = user.getProfile();
+            postContent.setImage(user.getProfile());
 
-            postContent.setMedia(PostPic);
-            postContent.Username = user.getEmail();
+            postContent.setUsername(user.getEmail());
             postContent.setName(user.getFirstName()+" "+user.getLastName());
-            postContent.date = LocalDate.now().toString();
+            postContent.setDate(LocalDate.now().toString());
             //if(PostPic != null )postContent.media = PostPic;
 
             if(personService.CreatePost(postContent)){
-                Notification.show("Posted Successful",1000, Notification.Position.TOP_CENTER);
+
+                Notification.show("Event set Successful",1000, Notification.Position.TOP_CENTER);
 
             };
-        }*/
-    }
-
-    private void createFeed(List<MainView.Post> allPost) {
-        for (MainView.Post post:
-             allPost) {
-
-            feed.add(createCard(post));
-
         }
-    }
-
-    private Component setSideUserSummary(){
-
-        person =  (UserData)VaadinSession.getCurrent().getAttribute("LoggedInUser");
-        VerticalLayout profl = new VerticalLayout();
-
-        byte[] imageBytes = person.getProfile();
-        StreamResource resource = new StreamResource("dummyImageName.jpg",() -> new ByteArrayInputStream(imageBytes));
-        Image image = new Image();
-        image.setSrc(resource);
-
-        profl.setClassName("profile");
-        HorizontalLayout top = new HorizontalLayout();
-        Span pp = new Span(image);
-        H2 title= new H2((person != null &&person.getFirstName() != null)?"Mr "+person.getLastName():"Username") ;
-        top.add(pp,title);
-        TextArea summary = new TextArea("Summary") ;
-        profl.add(top,summary);
-        HL.add(profl);
-
-        return profl;
     }
 
     private HorizontalLayout createCard(MainView.Post post) {
@@ -313,9 +287,9 @@ public class Feed extends Div implements AfterNavigationObserver {
         }
         postC.addClassName("post");
 
-        if( containsHateSpeech(txt) > 0.1){
+        /*if( containsHateSpeech(txt) > 0.1){
             postC.getStyle().set("background-color","red");
-        }
+        }*/
         //picture content
         if(!(post.getMedia() == null))
         {
@@ -439,6 +413,48 @@ public class Feed extends Div implements AfterNavigationObserver {
 
 
         return card;
+    }
+
+    private void createFeed(List<MainView.Post> allPost) {
+        for (MainView.Post post:
+             allPost) {
+
+            feed.add(createCard(post));
+
+        }
+    }
+
+    private Component setSideUserSummary(){
+
+        person =  (UserData)VaadinSession.getCurrent().getAttribute("LoggedInUser");
+        VerticalLayout profl = new VerticalLayout();
+
+        byte[] imageBytes = person.getProfile();
+        StreamResource resource = new StreamResource("dummyImageName.jpg",() -> new ByteArrayInputStream(imageBytes));
+        Image image = new Image();
+        image.setSrc(resource);
+
+        profl.setClassName("profile");
+        HorizontalLayout top = new HorizontalLayout();
+        Span pp = new Span(image);
+        H2 title= new H2((person != null &&person.getFirstName() != null)?"Mr "+person.getLastName():"Username") ;
+        top.add(pp,title);
+        TextArea summary = new TextArea("Summary") ;
+        profl.add(top,summary);
+        HL.add(profl);
+
+        return profl;
+    }
+
+    private static class meeting extends Event implements EventListener {
+
+        protected String  title;
+        protected String  description;
+        protected String  link;
+        protected String startTime;
+        protected String endtime;
+        private  String hoster;
+
     }
 
     private double containsHateSpeech(String txt) {

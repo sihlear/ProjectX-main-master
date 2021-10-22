@@ -3,8 +3,14 @@
 @import url('./views/card-list-view.css');
 @import url('./views/person-form-view.css');
 @import url('./views/MasterDetailView.css');
-@import url('lumo-css-framework/all-classes.css');    html {
-      --lumo-font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono","AVENIR", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+@import url('lumo-css-framework/all-classes.css');
+
+
+ html {
+      --lumo-font-family: Consolas, Arial,/*
+      "Andale Mono", "Lucida Console", "Lucida Sans Typewriter",
+      "DejaVu Sans Mono", "Bitstream Vera Sans Mono","AVENIR",
+       "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New",*/ Courier, monospace;
       --lumo-body-text-color: hsla(48, 0%, 0%, 0.94);
       --lumo-shade-5pct: rgba(33, 33, 33, 0.05);
       --lumo-shade-10pct: rgba(33, 33, 33, 0.1);

@@ -1,6 +1,7 @@
 .sidemenu-header {
   height: var(--lumo-size-xl);
   box-shadow: var(--lumo-box-shadow-s);
+  font-family: Arial;
 }
 .sidemenu-header vaadin-avatar {
   margin-left: auto;

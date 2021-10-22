@@ -860,6 +860,47 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
     public UserData getUser() {
         return new UserData();
     }
+
+    public void createEvent(String title,
+              String hoster,
+              String descr ,
+              String startdate,
+              String link,
+              String enddateTime)
+    {
+
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
+
+            //creating connection
+            Connection con= DriverManager.getConnection(url);
+            //
+            String query = "insert into mindworxdb.webinar (title, hoster, descr,startdate,link,enddateTime)"
+                    + " values (?,?, ?, ?, ?, ?)";
+
+            PreparedStatement preparedStmt = con.prepareStatement(query);
+
+            preparedStmt.setString(1, title);
+            preparedStmt.setString(2, hoster);
+            preparedStmt.setString(3, descr);
+            preparedStmt.setString(4, startdate);
+            preparedStmt.setString(5, link);
+            preparedStmt.setString(6, enddateTime);
+
+            preparedStmt.execute();
+            con.close();
+
+        } catch (SQLException throwables) {
+            Notification.show("Got an exception!");
+            Notification.show(throwables.getMessage());// this should help us with the error
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            Notification.show("error "+e.getMessage());
+        }
+
+    }
 }
 
 
