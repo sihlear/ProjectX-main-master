@@ -10,10 +10,12 @@ import com.vaadin.flow.server.VaadinSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
+import org.vaadin.stefan.fullcalendar.Entry;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,7 +137,7 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
             Connection con = DriverManager.getConnection(url);
 
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from mindworxdb.users where NameOfUser like "+"'"+skillname+"%'" );
+            ResultSet rs = stmt.executeQuery("select * from mindworxdb.users where Skills Like "+"'%"+skillname+"%'" );
 
             //get all users online
             while (rs.next()) {
@@ -859,6 +861,46 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
 
     public UserData getUser() {
         return new UserData();
+    }
+
+    public static List<Entry> getEvents(){
+        List<Entry> events = new ArrayList<>();
+
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
+
+            //creating connection
+
+            Connection con = DriverManager.getConnection(url);
+
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("select * from mindworxdb.webinar" );
+
+            //get all entries online
+            while (rs.next()) {
+//1346
+                Entry event = new Entry();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                event.setTitle(rs.getString(1));
+                event.setDescription(rs.getString(3));
+                LocalDateTime dateTime = LocalDateTime.parse(rs.getString(4), formatter);
+                event.setStart(dateTime);
+                event.setEnd(LocalDateTime.parse(rs.getString(6),formatter));
+
+                events.add(event);
+            }
+
+            con.close();
+
+        } catch (SQLException throwables) {
+            Notification.show("Exception is :" + throwables);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return events;
     }
 
     public void createEvent(String title,

@@ -34,16 +34,14 @@ import com.vaadin.flow.server.VaadinSession;
 import jdk.jfr.Event;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,10 +89,12 @@ public class Feed extends Div implements AfterNavigationObserver {
         // we need to call the method on our service class that returns our
         // posts from the database, and find a way to add those posts to our UI
         grid.addComponentColumn(post -> createCard(post));
-        FullCalendar fullCalendar = new FullCalendar();
+        FullCalendar fullCalendar = FullCalendarBuilder.create().withScheduler().build();
         fullCalendar.getStyle().set("width","85%");
         fullCalendar.setFirstDay(DayOfWeek.MONDAY);
         fullCalendar.getStyle().set("height","50px");
+        setEvents(fullCalendar);
+
         fullCalendar.addTimeslotsSelectedListener((event) -> {
             // react on the selected timeslot, for instance create a new instance and let the user edit it
             Entry entry = new Entry();
@@ -103,7 +103,10 @@ public class Feed extends Div implements AfterNavigationObserver {
             entry.setEnd(fullCalendar.getTimezone().convertToUTC(event.getEndDateTime()));
             entry.setAllDay(event.isAllDay());
 
-            entry.setColor("orange");
+            List<String> myList = Arrays.asList("orange", "blue", "yellow", "pink");
+            Random r = new Random();
+            int randomitem = r.nextInt(myList.size());
+            entry.setColor(myList.get(randomitem));
 
             // ... show and editor
         });
@@ -129,7 +132,8 @@ public class Feed extends Div implements AfterNavigationObserver {
             HorizontalLayout des =  new HorizontalLayout();
             Div description = new Div();
             TextField title = new TextField("Title");
-            description.add(new TextArea("Description"));
+            TextArea desc = new TextArea("Description");
+            description.add(desc);
             des.add(description);
             verticalLayout.add(top,end,title,des);
 
@@ -140,12 +144,16 @@ public class Feed extends Div implements AfterNavigationObserver {
 
                 entry.setStart(fullCalendar.getTimezone().convertToUTC(start.getValue()));
                 entry.setEnd(fullCalendar.getTimezone().convertToUTC(endDate.getValue()));
-                entry.setDescription(description.getText());
+                entry.setDescription(desc.getValue());
                 entry.setTitle(title.getValue());
                 //entry.setAllDay();
-                Notification.show("Text is "+description.getText().toString());
-                shareEvent(title.getValue(),start.getValue(),description.getText().toString(),endDate.getValue(),person);
-                entry.setColor("dodgerblue");
+
+                shareEvent(title.getValue(),start.getValue(),desc.getValue(),endDate.getValue(),person);
+
+                List<String> myList = Arrays.asList("orange", "blue", "yellow", "pink");
+                Random r = new Random();
+                int randomitem = r.nextInt(myList.size());
+                entry.setColor(myList.get(randomitem));
                 fullCalendar.addEntry(entry);
             });
             addEvent.getStyle().set("background-color","orange");
@@ -157,7 +165,6 @@ public class Feed extends Div implements AfterNavigationObserver {
             ev.add(verticalLayout);
             ev.open();
 
-
         });
 
         layout.add(fullCalendar);
@@ -166,6 +173,15 @@ public class Feed extends Div implements AfterNavigationObserver {
 
         HL.add(feed,layout);
         add(HL);
+
+    }
+
+    public void setEvents(FullCalendar calendar){
+
+        List<Entry> getEvents = new ArrayList<>();
+        //getEvents = SamplePersonService.getEvents();
+
+        calendar.addEntries(getEvents);
 
     }
 
@@ -186,12 +202,14 @@ public class Feed extends Div implements AfterNavigationObserver {
 
         String[] links =
         {   "https://meet.google.com/xcg-rboq-piy",
-                "https://meet.google.com/xba-hshs-zky",
+             "https://meet.google.com/xba-hshs-zky",
             "https://meet.google.com/cme-ujqd-vpk",
             "https://meet.google.com/syk-jtxw-trz",
             "https://meet.google.com/njw-xwsv-kaj",
             "https://meet.google.com/vra-vgvf-qfn"
          };
+
+
         Notification.show("Description is "+descr);
 
         String eventDetails = "Title : "+titl+" \n " +

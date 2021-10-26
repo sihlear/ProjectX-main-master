@@ -1,42 +1,40 @@
 package com.example.application.views.masterdetail;
 
-import java.util.Optional;
-
 import com.example.application.data.entity.SamplePerson;
 import com.example.application.data.service.SamplePersonService;
-
+import com.example.application.views.main.MainView;
 import com.example.application.views.main.UserData;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-
-import org.h2.engine.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.artur.helpers.CrudServiceDataProvider;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
-import com.example.application.views.main.MainView;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.VaadinSession;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.ByteArrayInputStream;
+import java.util.Optional;
 
 @Route(value = "Admin", layout = MainView.class)
 @PageTitle("Admin")
@@ -82,70 +80,46 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
 
         SplitLayout splitLayout = new SplitLayout();
         splitLayout.setSizeFull();
-
         //createGridLayout(splitLayout);
         //createEditorLayout(splitLayout);
-
         add(container);
 
+    }
+    private HorizontalLayout createUserCard(UserData userData) {
 
+        HorizontalLayout card = new HorizontalLayout();
+        card.addClassName("card");
+        card.setSpacing(false);
+        card.getThemeList().add("spacing-s");
 
-       /* // Configure Grid
-        grid.addColumn("firstName").setAutoWidth(true);
-        grid.addColumn("lastName").setAutoWidth(true);
-        grid.addColumn("email").setAutoWidth(true);
-        grid.addColumn("phone").setAutoWidth(true);
-        grid.addColumn("dateOfBirth").setAutoWidth(true);
-        grid.addColumn("occupation").setAutoWidth(true);
-        TemplateRenderer<SamplePerson> importantRenderer = TemplateRenderer.<SamplePerson>of(
-                "<iron-icon hidden='[[!item.important]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.important]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
-                .withProperty("important", SamplePerson::isImportant);
-        grid.addColumn(importantRenderer).setHeader("Important").setAutoWidth(true);
+        Image image = new Image();
+        if((userData.getProfile() != null)){
 
-        grid.setDataProvider(new CrudServiceDataProvider<>(samplePersonService));
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        grid.setHeightFull();
+            byte[] imageBytes = userData.getProfile();
+            StreamResource resource = new StreamResource("dummyImageName.jpg", () -> new ByteArrayInputStream(imageBytes));
 
-        // when a row is selected or deselected, populate form
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            if (event.getValue() != null) {
-                UI.getCurrent().navigate(String.format(SAMPLEPERSON_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
-            } else {
-                clearForm();
-                UI.getCurrent().navigate(MasterDetailView.class);
-            }
-        });
+            image.setSrc(resource);
+        }
 
-        // Configure Form
-        binder = new BeanValidationBinder<>(SamplePerson.class);
+        Span name = new Span(userData.getFirstName()+" "+userData.getLastName());
+        Span isOnline = new Span();
 
-        // Bind fields. This where you'd define e.g. validation rules
+        card.add(image,name,isOnline);
 
-        binder.bindInstanceFields(this);
+        card.addClickListener(
 
-        cancel.addClickListener(e -> {
-            clearForm();
-            refreshGrid();
-        });
+                searchEvent->
+                {
+                    VaadinSession.getCurrent().setAttribute( "User" , userData ) ;
 
-        save.addClickListener(e -> {
-            try {
-                if (this.samplePerson == null) {
-                    this.samplePerson = new SamplePerson();
-                }
-                binder.writeBean(this.samplePerson);
+                    UI.getCurrent().navigate("user-profile");
+                });
+        card.setVisible(true);
 
-                samplePersonService.update(this.samplePerson);
-                clearForm();
-                refreshGrid();
-                Notification.show("SamplePerson details stored.");
-                UI.getCurrent().navigate(MasterDetailView.class);
-            } catch (ValidationException validationException) {
-                Notification.show("An exception happened while trying to store the samplePerson details.");
-            }
-        });*/
+        return card;
 
     }
+
 
     private void addRoutes() {
 
@@ -173,7 +147,9 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         Text RA = new Text("Recruit Alumni");
         Div top2 = new Div();
         top2.add(RA);
+
         top2.getStyle().set("width","100%");
+
         top2.addClickListener(event -> {
 
             top2.getStyle().set("background","orange");
@@ -221,13 +197,86 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         TextField search = new TextField("Skill");
         top.add(search);
 
-        Grid<UserData> eligibleUsers = new Grid();
+
+
         SamplePersonService service = new SamplePersonService();
-        layout.add(top,eligibleUsers,new Button("Search",e ->{
-            eligibleUsers.setItems(service.getEligibleUsers(search.getValue()));
+        layout.add(top,new Button("Search",e ->{
+
+
+            //Add users to the layout
+            VerticalLayout list = new VerticalLayout();
+            Grid<UserData> grid1 = new Grid<>();
+            //grid1.setItems(service.getEligibleUsers(search.getValue()));
+            grid.setHeight("100%");
+            grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_NO_ROW_BORDERS);
+            for (UserData user1: service.getEligibleUsers(search.getValue())) {
+                Notification.show("User is -> "+user1.getFirstName()+" Skill Set is "+user1.getSkills(),1000, Notification.Position.MIDDLE);
+
+                list.add(createCard(user1));
+            }
+            layout.add(list);
+            layout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+
         }));
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setVisible(true);
 
         return layout;
+    }
+    private HorizontalLayout createCard(UserData userData) {
+
+        HorizontalLayout layout = new HorizontalLayout();
+        HorizontalLayout card = new HorizontalLayout();
+        card.addClassName("card");
+        card.setSpacing(false);
+        card.getThemeList().add("spacing-s");
+        layout.getStyle().set("background","#56575b");
+        layout.getStyle().set("width","100%");
+
+        Image image = new Image();
+        if((userData.getProfile() != null)){
+
+            byte[] imageBytes = userData.getProfile();
+            StreamResource resource = new StreamResource("dummyImageName.jpg", () -> new ByteArrayInputStream(imageBytes));
+
+            image.setSrc(resource);
+            image.setClassName("Avatar");
+        }
+
+        image.getStyle().set("height","50%");
+        image.getStyle().set("border-radius","50%");
+        Span name = new Span(userData.getFirstName()+" "+userData.getLastName());
+        Span isOnline = new Span();
+
+        card.add(image,name,isOnline);
+
+        card.setVisible(true);
+
+        HorizontalLayout buttons = new HorizontalLayout();
+
+        Button viewProfile = new Button("View Profile",event -> {
+            VaadinSession.getCurrent().setAttribute( "User" , userData ) ;
+
+            UI.getCurrent().navigate("user-profile");
+        }
+        );
+
+        buttons.add(viewProfile);
+        layout.add(card,buttons);
+        layout.setFlexGrow(1, card);
+        layout.setVerticalComponentAlignment(FlexComponent.Alignment.END,buttons);
+
+
+        layout.getStyle().set("border-radius","1px #FF7F00");
+        layout.getStyle().set("padding","10%");
+        layout.getStyle().set("height","20px");
+        buttons.getStyle().set("padding","5%");
+        viewProfile.getStyle().set("padding-bottom","5%");
+        viewProfile.getStyle().set("border","2px solid #ffffff");
+
+        layout.getStyle().set("border","2px solid #FF7F00");
+        return layout;
+
     }
 
     @Override
