@@ -2,3 +2,20 @@
 
         width:100%;
 }
+.MasterDetailView img {
+  border-radius: 20%;
+  flex-shrink: 0;
+  height: var(--lumo-size-m);
+  margin-right: calc(var(--lumo-space-s) * 1.5);
+  width: var(--lumo-size-m);
+}
+
+.MasterDetailView .card {
+  background-color: var(--lumo-base-color);
+  border-radius: var(--lumo-border-radius-l);
+  box-shadow: var(--lumo-box-shadow-xs);
+  padding: calc(var(--lumo-space-s) * 1.5) var(--lumo-space-m);
+  border: 2px solid #FF7F00;
+  width:100%;
+
+}

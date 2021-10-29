@@ -128,11 +128,9 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         top.addClickListener(event -> {
 
             top.getStyle().set("background","orange");
+            top.getStyle().set("border-radius","2px");
             pageOnDisplay.removeAll();
             pageOnDisplay.add(createJobPost());
-
-            Notification.show(" On click ",1000, Notification.Position.MIDDLE);
-
         });
         top.add(JP);
         top.getStyle().set("width","100%");
@@ -141,10 +139,20 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         Text  PR = new Text("Password Reset");
         Div top1 = new Div();
         top1.add(PR);
+        top1.addClickListener(event -> {
+            top1.getStyle().set("background","orange");
+            top1.getStyle().set("border-radius","2px");
+            pageOnDisplay.removeAll();
+            pageOnDisplay.add(createPasswordResetLayOut());
+
+        });
+
+
         top1.getStyle().set("width","100%");
 
 
         Text RA = new Text("Recruit Alumni");
+
         Div top2 = new Div();
         top2.add(RA);
 
@@ -153,7 +161,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         top2.addClickListener(event -> {
 
             top2.getStyle().set("background","orange");
-
+            top2.getStyle().set("border-radius","2px");
             pageOnDisplay.removeAll();
             pageOnDisplay.add(createSkillSearch());
 
@@ -187,6 +195,41 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         jobPost.add(top,middle,bottom, new Button("Post",e->{
             Notification.show("Job posted",500, Notification.Position.MIDDLE);
         }));
+
+        jobPost.setClassName("card");
+        return  jobPost;
+    }
+
+    private VerticalLayout createPasswordResetLayOut() {
+
+        VerticalLayout jobPost = new VerticalLayout();
+        UserData selectedUser = null;
+
+        SplitLayout splitLayout = new SplitLayout();
+        VerticalLayout left = new VerticalLayout();
+        left.add(new Text("User requests "));
+        Grid<UserData> users = new Grid<>();
+        left.add(users);
+
+        VerticalLayout right = new VerticalLayout();
+        right.add(new Text("Reset"));
+
+        splitLayout.addToPrimary(left);
+        splitLayout.addToSecondary(right);
+        right.add(new Button("reset",event -> {
+
+            if(selectedUser == null){
+
+                Notification.show("Please select the user to reset password for",1000,
+                        Notification.Position.MIDDLE);
+            }
+
+        }));
+
+        jobPost.add(splitLayout);
+        splitLayout.getStyle().set("width","100%");
+        jobPost.setClassName("card");
+        jobPost.getStyle().set("border","2px orange");
         return  jobPost;
     }
 
@@ -196,8 +239,6 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         Div top = new Div();
         TextField search = new TextField("Skill");
         top.add(search);
-
-
 
         SamplePersonService service = new SamplePersonService();
         layout.add(top,new Button("Search",e ->{

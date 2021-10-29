@@ -15,9 +15,11 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class SamplePersonService extends CrudService<SamplePerson, Integer> {
@@ -603,9 +605,9 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
         return false;
     }
 
-    public boolean ValidateUser(String username, String password){
+    public static List<Entry> getEvents(){
+        List<Entry> events = new ArrayList<>();
 
-        UserData LoggedInUser = new UserData("user");
         try {
 
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -613,114 +615,84 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
 
             //creating connection
 
-            Connection con= DriverManager.getConnection(url);
+            Connection con = DriverManager.getConnection(url);
 
-            Statement stmt=con.createStatement();
-            ResultSet rs =stmt.executeQuery("select * from mindworxdb.users  where email ="+"'"+username+"'");
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("select * from mindworxdb.webinar" );
 
-//asign values to the person object to have data of the currently loggin user
+            //get all entries online
+            while (rs.next()) {
+//1346
+                Entry event = new Entry();
+                event.setTitle(rs.getString(1));
+                event.setDescription(rs.getString(3));
+                LocalDateTime dateTime = getDate(rs.getString(5));
+                event.setStart(dateTime);
+                event.setEnd(getDate(rs.getString(7)));
 
-            while(rs.next()){
-
-
-                LoggedInUser.setEmail(rs.getString(1));
-                LoggedInUser.setPassword(rs.getString(2));
-
-                // validate password and get user data
-
-                if(LoggedInUser.getPassword().equals(password)){
-                    LoggedInUser.setProgrammeY(rs.getInt(4));
-                    LoggedInUser.setProgName(!rs.getString(6).toString().equals(null)? rs.getString(6):"");
-                    LoggedInUser.setLastName(!rs.getString(7).toString().equals(null)? rs.getString(7):"");
-                    LoggedInUser.setFirstName(!rs.getString(8).toString().equals(null)? rs.getString(8):"");
-                    LoggedInUser.setAge(rs.getInt(9));
-
-                    LoggedInUser.setGender(!rs.getString(10).toString().equals(null)? rs.getString(10).toString():"");
-                    LoggedInUser.setSecurityQ(!rs.getString(11).toString().equals(null)? rs.getString(11).toString():"");
-                    LoggedInUser.setAnswer(!rs.getString(12).toString().equals(null)? rs.getString(12).toString():"");
-
-
-                    byte[] decodedBytes = rs.getBlob(13).getBytes(1,(int)rs.getBlob(13).length());
-                    LoggedInUser.setProfile(decodedBytes);
-
-                    LoggedInUser.setSkills(rs.getString(15).toString().equals(null)? rs.getString(15).toString():"");
-                    LoggedInUser.setContact(rs.getInt(16));
-                    LoggedInUser.setTown(rs.getString(17).toString().equals(null)? rs.getString(17).toString():"");
-
-                    isOnline(LoggedInUser.getEmail());
-
-                    VaadinSession.getCurrent().setAttribute( "LoggedInUser" , LoggedInUser ) ;
-                    //Notification.show(((UserData)VaadinSession.getCurrent().getAttribute("LoggedInUser")).getEmail(),100000, Notification.Position.MIDDLE);
-                      return true;
-
-
-                }
-                else{
-                    Notification.show("Password entered is "+password +", Password found is ->"+LoggedInUser.getPassword());
-                    return false;
-                }
+                List<String> myList = Arrays.asList("orange", "blue", "yellow", "pink");
+                Random r = new Random();
+                int randomitem = r.nextInt(myList.size());
+                event.setColor(myList.get(randomitem));
+                events.add(event);
             }
+
             con.close();
 
         } catch (SQLException throwables) {
-            Notification.show("Exception is :"+throwables);
+            Notification.show("Exception is :" + throwables);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        return true;
-
+        return events;
     }
 
-    public  boolean UpdateProfile(UserData user){
+    static LocalDateTime getDate(String time){
 
-        try {
-
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
-
-            //creating connection
-
-            Connection con= DriverManager.getConnection(url);
-            Notification.show("Query execution");
-
-            String query = " update  mindworxdb.users set NameOfUser=?, Surname = ?, email=?,Contact=?,Skills=? ,Town=?,programmeName=?,programmeYear=?, profilePicture=?, CV=? ,Certificate =? where email = ?";
-
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setString (1, user.getFirstName());
-            preparedStmt.setString(2,user.getLastName());
-            preparedStmt.setString(3, user.getEmail());
-            preparedStmt.setInt(4, user.getContact());
-            preparedStmt.setString(5, user.getSkills());
-            preparedStmt.setString    (6, user.getTown());
-            preparedStmt.setString(7, user.getProgName());
-            preparedStmt.setInt(8,user.getProgrammeY());
-            preparedStmt.setBlob(9,new SerialBlob(user.getProfile()));
-            preparedStmt.setBlob(10,new SerialBlob(user.getCv()));
-            preparedStmt.setString(11,user.getEmail());
-            preparedStmt.setBlob(12,new SerialBlob(user.getCertificate()));
+        int year ,DOM ,hour,minute,mon;
 
 
-            preparedStmt.execute();
-            con.close();
+        year = Integer.parseInt(time.substring(0,4));
+        DOM = Integer.parseInt(time.substring(8,10));
+        hour = Integer.parseInt(time.substring(11,13));
+        minute = Integer.parseInt(time.substring(14,16));
+        mon = Integer.parseInt(time.substring(5,7));
 
-            Notification.show(" Profile Update Successful");
+        LocalDateTime localDateTime ;
 
-            return true;
+        switch (mon){
+            case 1 :
+                localDateTime = LocalDateTime.of(year, Month.JANUARY, DOM, hour, minute);
+            case 2 :
+                localDateTime = LocalDateTime.of(year, Month.FEBRUARY, DOM, hour, minute);
+            case 3 :
+                localDateTime = LocalDateTime.of(year, Month.MARCH, DOM, hour, minute);
+            case 4 :
+                localDateTime = LocalDateTime.of(year, Month.APRIL, DOM, hour, minute);
+            case 5 :
+                localDateTime = LocalDateTime.of(year, Month.MAY, DOM, hour, minute);
+            case 6 :
+                localDateTime = LocalDateTime.of(year, Month.JUNE, DOM, hour, minute);
+            case 7 :
+                localDateTime = LocalDateTime.of(year, Month.JULY, DOM, hour, minute);
+            case 8 :
+                localDateTime = LocalDateTime.of(year, Month.AUGUST, DOM, hour, minute);
+            case 9 :
+                localDateTime = LocalDateTime.of(year, Month.SEPTEMBER, DOM, hour, minute);
+            case 10 :
+                localDateTime = LocalDateTime.of(year, Month.OCTOBER, DOM, hour, minute);
+            case 11 :
+                localDateTime = LocalDateTime.of(year, Month.NOVEMBER, DOM, hour, minute);
+            case 12 :
+                localDateTime = LocalDateTime.of(year, Month.DECEMBER, DOM, hour, minute);
 
-
-
-        } catch (SQLException throwables) {
-            Notification.show("Got an exception!");
-            Notification.show(throwables.getMessage());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            Notification.show("Class not found exception");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + mon);
         }
 
-        return false;
-
+        return localDateTime;
 
     }
 
@@ -863,9 +835,9 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
         return new UserData();
     }
 
-    public static List<Entry> getEvents(){
-        List<Entry> events = new ArrayList<>();
+    public boolean ValidateUser(String username, String password){
 
+        UserData LoggedInUser = new UserData("user");
         try {
 
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -873,34 +845,114 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
 
             //creating connection
 
-            Connection con = DriverManager.getConnection(url);
+            Connection con= DriverManager.getConnection(url);
 
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from mindworxdb.webinar" );
+            Statement stmt=con.createStatement();
+            ResultSet rs =stmt.executeQuery("select * from mindworxdb.users  where email ="+"'"+username+"'");
 
-            //get all entries online
-            while (rs.next()) {
-//1346
-                Entry event = new Entry();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                event.setTitle(rs.getString(1));
-                event.setDescription(rs.getString(3));
-                LocalDateTime dateTime = LocalDateTime.parse(rs.getString(4), formatter);
-                event.setStart(dateTime);
-                event.setEnd(LocalDateTime.parse(rs.getString(6),formatter));
+//asign values to the person object to have data of the currently loggin user
 
-                events.add(event);
+            while(rs.next()){
+
+
+                LoggedInUser.setEmail(rs.getString(1));
+                LoggedInUser.setPassword(rs.getString(2));
+
+                // validate password and get user data
+
+                if(LoggedInUser.getPassword().equals(password)){
+                    LoggedInUser.setProgrammeY(rs.getInt(4));
+                    LoggedInUser.setProgName(!rs.getString(6).toString().equals(null)? rs.getString(6):"");
+                    LoggedInUser.setLastName(!rs.getString(7).toString().equals(null)? rs.getString(7):"");
+                    LoggedInUser.setFirstName(!rs.getString(8).toString().equals(null)? rs.getString(8):"");
+                    LoggedInUser.setAge(rs.getInt(9));
+
+                    LoggedInUser.setGender(!rs.getString(10).toString().equals(null)? rs.getString(10).toString():"");
+                    LoggedInUser.setSecurityQ(!rs.getString(11).toString().equals(null)? rs.getString(11).toString():"");
+                    LoggedInUser.setAnswer(!rs.getString(12).toString().equals(null)? rs.getString(12).toString():"");
+
+
+                    byte[] decodedBytes = rs.getBlob(13).getBytes(1,(int)rs.getBlob(13).length());
+                    LoggedInUser.setProfile(decodedBytes);
+
+                    LoggedInUser.setSkills(rs.getString(15).toString().equals(null)? rs.getString(15).toString():"");
+                    LoggedInUser.setContact(rs.getInt(16));
+                    LoggedInUser.setTown(rs.getString(17).toString().equals(null)? rs.getString(17).toString():"");
+
+                    isOnline(LoggedInUser.getEmail());
+
+                    VaadinSession.getCurrent().setAttribute( "LoggedInUser" , LoggedInUser ) ;
+                      return true;
+
+
+                }
+                else{
+                    Notification.show("Incorrect Password");
+                    return false;
+                }
             }
-
             con.close();
 
         } catch (SQLException throwables) {
-            Notification.show("Exception is :" + throwables);
+            Notification.show("Exception is :"+throwables);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        return events;
+        return true;
+
+    }
+
+    public  boolean UpdateProfile(UserData user){
+
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
+
+            //creating connection
+
+            Connection con= DriverManager.getConnection(url);
+            Notification.show("Query execution");
+
+            String query = "update  mindworxdb.users set NameOfUser=?, Surname = ?, email=?,Contact=?,Skills=? ,Town=?,programmeName=?,programmeYear=?, profilePicture=?, CV=? ,Certificate =? where email = ?";
+
+            PreparedStatement preparedStmt = con.prepareStatement(query);
+            preparedStmt.setString (1, user.getFirstName());
+            preparedStmt.setString(2,user.getLastName());
+            preparedStmt.setString(3, user.getEmail());
+            preparedStmt.setInt(4, user.getContact());
+            preparedStmt.setString(5, user.getSkills());
+            preparedStmt.setString    (6, user.getTown());
+            preparedStmt.setString(7, user.getProgName());
+            preparedStmt.setInt(8,user.getProgrammeY());
+            preparedStmt.setBlob(9,new SerialBlob(user.getProfile()));
+            preparedStmt.setBlob(10,new SerialBlob(user.getCv()));
+            preparedStmt.setString(11,user.getEmail());
+            preparedStmt.setBlob(12,new SerialBlob(user.getCertificate()));
+
+
+            preparedStmt.execute();
+            con.close();
+
+            Notification.show(" Profile Update Successful");
+
+            return true;
+
+
+
+        } catch (SQLException throwables) {
+            Notification.show("Got an exception!");
+            Notification.show(throwables.getMessage());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            Notification.show("Class not found exception");
+        }
+
+        return false;
+
+
     }
 
     public void createEvent(String title,

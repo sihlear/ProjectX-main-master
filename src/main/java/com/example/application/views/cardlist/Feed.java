@@ -34,10 +34,8 @@ import com.vaadin.flow.server.VaadinSession;
 import jdk.jfr.Event;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 
 import java.io.ByteArrayInputStream;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -89,11 +87,15 @@ public class Feed extends Div implements AfterNavigationObserver {
         // we need to call the method on our service class that returns our
         // posts from the database, and find a way to add those posts to our UI
         grid.addComponentColumn(post -> createCard(post));
-        FullCalendar fullCalendar = FullCalendarBuilder.create().withScheduler().build();
-        fullCalendar.getStyle().set("width","85%");
-        fullCalendar.setFirstDay(DayOfWeek.MONDAY);
-        fullCalendar.getStyle().set("height","50px");
+        FullCalendar fullCalendar = new FullCalendar();
         setEvents(fullCalendar);
+        fullCalendar.getStyle().set("width","100%");
+        fullCalendar.setWeekNumbersVisible(false);
+        fullCalendar.addEntry(SamplePersonService.getEvents().get(2));
+        fullCalendar.setHeightAuto();
+
+        fullCalendar.setColumnHeader(true);
+
 
         fullCalendar.addTimeslotsSelectedListener((event) -> {
             // react on the selected timeslot, for instance create a new instance and let the user edit it
@@ -178,8 +180,10 @@ public class Feed extends Div implements AfterNavigationObserver {
 
     public void setEvents(FullCalendar calendar){
 
-        List<Entry> getEvents = new ArrayList<>();
-        //getEvents = SamplePersonService.getEvents();
+        List<Entry> getEvents;
+
+        //load events created
+        getEvents = SamplePersonService.getEvents();
 
         calendar.addEntries(getEvents);
 
