@@ -4,6 +4,7 @@ import com.example.application.data.service.SamplePersonService;
 import com.example.application.views.main.MainView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -19,9 +20,9 @@ import com.vaadin.flow.router.Route;
 public class forgotpass extends Div {
 
 
-    private String Username;
     private String SecretAnswer;
     private String Question;
+
 
     public forgotpass(SamplePersonService personService){
         addClassName("hello-world-view");
@@ -32,6 +33,12 @@ public class forgotpass extends Div {
 
         TextField newPass = new TextField("Enter new password");
         TextField confirmPass = new TextField("Confirm new password");
+
+        //Link for forgot security answer
+        Anchor forgotPass = new Anchor("","Forgot answer?");
+        forgotPass.getElement().addEventListener("click",event ->{
+            SamplePersonService.passwordResetRequest(username.getValue());
+        });
 
         VerticalLayout main = new VerticalLayout();
         add(main);
@@ -44,9 +51,10 @@ public class forgotpass extends Div {
         Button ok = new Button("Enter", buttonClickEvent -> {
 
             if(!username.getValue().isEmpty() && Ques.getValue().isEmpty()){
-
+                VerticalLayout ans = new VerticalLayout();
+                ans.add(answer,forgotPass);
                 Ques.setValue(ForgotPassCheck(personService,username.getValue()));
-                body.add(Ques,answer);
+                body.add(Ques,ans);
                 Ques.setReadOnly(true);
 
             }else if(!Ques.getValue().isEmpty() && newPass.getValue().isEmpty()){
@@ -63,7 +71,7 @@ public class forgotpass extends Div {
                if( personService.resetPassword(newPass.getValue(), username.getValue())){
                     Notification.show("Password reset Successful");
                     UI.getCurrent().navigate("login");
-               };
+               }
 
             }else
                 Notification.show("There is a blank field or passwords don't match");

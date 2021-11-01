@@ -128,7 +128,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         top.addClickListener(event -> {
 
             top.getStyle().set("background","orange");
-            top.getStyle().set("border-radius","2px");
+            top.getStyle().set("border-radius","5px");
             pageOnDisplay.removeAll();
             pageOnDisplay.add(createJobPost());
         });
@@ -141,7 +141,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         top1.add(PR);
         top1.addClickListener(event -> {
             top1.getStyle().set("background","orange");
-            top1.getStyle().set("border-radius","2px");
+            top1.getStyle().set("border-radius","5px");
             pageOnDisplay.removeAll();
             pageOnDisplay.add(createPasswordResetLayOut());
 
@@ -161,7 +161,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         top2.addClickListener(event -> {
 
             top2.getStyle().set("background","orange");
-            top2.getStyle().set("border-radius","2px");
+            top2.getStyle().set("border-radius","5px");
             pageOnDisplay.removeAll();
             pageOnDisplay.add(createSkillSearch());
 
@@ -197,6 +197,8 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         }));
 
         jobPost.setClassName("card");
+        jobPost.getStyle().set("border","2px solid #ff8c44");
+        jobPost.getStyle().set("border-radius","10px");
         return  jobPost;
     }
 
@@ -229,7 +231,8 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         jobPost.add(splitLayout);
         splitLayout.getStyle().set("width","100%");
         jobPost.setClassName("card");
-        jobPost.getStyle().set("border","2px orange");
+        jobPost.getStyle().set("border","2px solid #ff8c44");
+        jobPost.getStyle().set("border-radius","10px");
         return  jobPost;
     }
 
@@ -261,6 +264,8 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         }));
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setVisible(true);
+        layout.getStyle().set("border","2px solid #ff8c44");
+        layout.getStyle().set("border-radius","10px");
 
         return layout;
     }
@@ -302,6 +307,7 @@ public class MasterDetailView extends Div implements BeforeEnterObserver {
         }
         );
 
+        buttons.getStyle().set("padding-top","40%");
         buttons.add(viewProfile);
         layout.add(card,buttons);
         layout.setFlexGrow(1, card);

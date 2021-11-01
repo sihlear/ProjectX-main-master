@@ -559,6 +559,36 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
         return messages;
     }
 
+    public static void passwordResetRequest(String username)  {
+
+
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
+
+                //creating connection
+
+                Connection con = DriverManager.getConnection(url);
+
+                // delete from mindworxdb.post where post_id =
+                String query = " insert into mindworxdb.passwordreset (username)"
+                        + " values (?)";
+
+                PreparedStatement preparedStmt = con.prepareStatement(query);
+
+                preparedStmt.setString(1,username);
+                preparedStmt.execute();
+                con.close();
+            } catch (SQLException throwables) {
+            Notification.show("Got an exception!");
+            Notification.show(throwables.getMessage());// this should help us with the error
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                Notification.show("error "+e.getMessage());
+            }
+
+    }
+
 
     public boolean CreatePost(MainView.Post post){
 
