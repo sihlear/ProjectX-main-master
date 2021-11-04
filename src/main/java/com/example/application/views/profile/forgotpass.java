@@ -35,7 +35,7 @@ public class forgotpass extends Div {
         TextField confirmPass = new TextField("Confirm new password");
 
         //Link for forgot security answer
-        Anchor forgotPass = new Anchor("","Forgot answer?");
+        Anchor forgotPass = new Anchor("","REquest password reset?");
         forgotPass.getElement().addEventListener("click",event ->{
             SamplePersonService.passwordResetRequest(username.getValue());
         });

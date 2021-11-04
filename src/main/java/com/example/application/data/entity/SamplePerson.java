@@ -1,14 +1,13 @@
 package com.example.application.data.entity;
 
-import javax.persistence.Entity;
-
 import com.example.application.data.AbstractEntity;
-import com.vaadin.flow.component.Component;
 
-import java.time.LocalDate;
+import javax.persistence.Entity;
 
 @Entity
 public class SamplePerson extends AbstractEntity {
+
+
 
     public enum role {
         ADMIN,USER;

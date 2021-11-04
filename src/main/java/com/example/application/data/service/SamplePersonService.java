@@ -175,8 +175,6 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
         return users;
     }
 
-
-
     public static void Like(MainView.Post post) {
 
         try {
@@ -223,7 +221,7 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
 
             Connection con= DriverManager.getConnection(url);
 
-            String query = " update  mindworxdb.users set isOffline = ? where email = '"+email+"'";
+            String query = "update  mindworxdb.users set isOffline = ? where email = '"+email+"'";
 
             PreparedStatement preparedStmt = con.prepareStatement(query);
 
@@ -562,31 +560,122 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
     public static void passwordResetRequest(String username)  {
 
 
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
 
-                //creating connection
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
 
-                Connection con = DriverManager.getConnection(url);
+            //creating connection
 
-                // delete from mindworxdb.post where post_id =
-                String query = " insert into mindworxdb.passwordreset (username)"
-                        + " values (?)";
+            Connection con = DriverManager.getConnection(url);
 
-                PreparedStatement preparedStmt = con.prepareStatement(query);
+            // delete from mindworxdb.post where post_id =
+            String query = " insert into mindworxdb.passwordreset (username)"
+                    + " values (?)";
 
-                preparedStmt.setString(1,username);
-                preparedStmt.execute();
-                con.close();
-            } catch (SQLException throwables) {
+            PreparedStatement preparedStmt = con.prepareStatement(query);
+
+            preparedStmt.setString(1,username);
+            preparedStmt.execute();
+            con.close();
+        } catch (SQLException throwables) {
             Notification.show("Got an exception!");
             Notification.show(throwables.getMessage());// this should help us with the error
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                Notification.show("error "+e.getMessage());
-            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            Notification.show("error "+e.getMessage());
+        }
 
+    }
+
+    public static List<String> getUsersRequest() {
+
+        List<String> users = new ArrayList<>();
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
+
+            //creating connection
+
+            Connection con = DriverManager.getConnection(url);
+
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("select * from mindworxdb.passwordreset");
+
+            while(rs.next()){
+
+                users.add(rs.getString(2));
+
+            }
+            con.close();
+        } catch (SQLException throwables) {
+            Notification.show("Got an exception!");
+            Notification.show(throwables.getMessage());// this should help us with the error
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            Notification.show("error "+e.getMessage());
+        }
+        return users;
+    }
+
+    public static UserData getUser(String username) {
+
+        UserData User = new UserData("user");
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/mindworxdb?user=root&password=Root_Password&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=true&failOverReadOnly=false";
+
+            //creating connection
+
+            Connection con= DriverManager.getConnection(url);
+
+            Statement stmt=con.createStatement();
+            ResultSet rs =stmt.executeQuery("select * from mindworxdb.users  where email ="+"'"+username+"'");
+
+//asign values to the person object to have data of the currently loggin user
+
+            while(rs.next()){
+
+
+                User.setEmail(rs.getString(1));
+                User.setPassword(rs.getString(2));
+
+                // validate password and get user data
+
+                User.setProgrammeY(rs.getInt(4));
+                User.setProgName(!rs.getString(6).toString().equals(null)? rs.getString(6):"");
+                User.setLastName(!rs.getString(7).toString().equals(null)? rs.getString(7):"");
+                User.setFirstName(!rs.getString(8).toString().equals(null)? rs.getString(8):"");
+                User.setAge(rs.getInt(9));
+
+
+
+                User.setSkills(rs.getString(15).toString().equals(null)? rs.getString(15).toString():"");
+                User.setContact(rs.getInt(16));
+                User.setTown(rs.getString(17).toString().equals(null)? rs.getString(17).toString():"");
+
+                VaadinSession.getCurrent().setAttribute( "User" , User );
+
+
+                return User;
+
+
+
+            }
+            con.close();
+
+        } catch (SQLException throwables) {
+            Notification.show("Exception is :"+throwables);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return User;
+
+    }
+
+    public static void updatePass(String username, String pass) {
     }
 
 
@@ -692,29 +781,29 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
         LocalDateTime localDateTime ;
 
         switch (mon){
-            case 1 :
+            case 0 :
                 localDateTime = LocalDateTime.of(year, Month.JANUARY, DOM, hour, minute);
-            case 2 :
+            case 1 :
                 localDateTime = LocalDateTime.of(year, Month.FEBRUARY, DOM, hour, minute);
-            case 3 :
+            case 2 :
                 localDateTime = LocalDateTime.of(year, Month.MARCH, DOM, hour, minute);
-            case 4 :
+            case 3 :
                 localDateTime = LocalDateTime.of(year, Month.APRIL, DOM, hour, minute);
-            case 5 :
+            case 4 :
                 localDateTime = LocalDateTime.of(year, Month.MAY, DOM, hour, minute);
-            case 6 :
+            case 5 :
                 localDateTime = LocalDateTime.of(year, Month.JUNE, DOM, hour, minute);
-            case 7 :
+            case 6 :
                 localDateTime = LocalDateTime.of(year, Month.JULY, DOM, hour, minute);
-            case 8 :
+            case 7 :
                 localDateTime = LocalDateTime.of(year, Month.AUGUST, DOM, hour, minute);
-            case 9 :
+            case 8 :
                 localDateTime = LocalDateTime.of(year, Month.SEPTEMBER, DOM, hour, minute);
-            case 10 :
+            case 9 :
                 localDateTime = LocalDateTime.of(year, Month.OCTOBER, DOM, hour, minute);
-            case 11 :
+            case 10 :
                 localDateTime = LocalDateTime.of(year, Month.NOVEMBER, DOM, hour, minute);
-            case 12 :
+            case 11 :
                 localDateTime = LocalDateTime.of(year, Month.DECEMBER, DOM, hour, minute);
 
                 break;
@@ -809,7 +898,7 @@ public class SamplePersonService extends CrudService<SamplePerson, Integer> {
 
     }
 
-    public boolean resetPassword(String newPass,String username) {
+    public static boolean resetPassword(String newPass, String username) {
 
         try {
 

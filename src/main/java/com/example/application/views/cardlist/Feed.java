@@ -1,12 +1,5 @@
 package com.example.application.views.cardlist;
 
-import com.cloudmersive.client.AnalyticsApi;
-import com.cloudmersive.client.invoker.ApiClient;
-import com.cloudmersive.client.invoker.ApiException;
-import com.cloudmersive.client.invoker.Configuration;
-import com.cloudmersive.client.invoker.auth.ApiKeyAuth;
-import com.cloudmersive.client.model.HateSpeechAnalysisRequest;
-import com.cloudmersive.client.model.HateSpeechAnalysisResponse;
 import com.example.application.data.service.SamplePersonService;
 import com.example.application.views.main.MainView;
 import com.example.application.views.main.UserData;
@@ -88,7 +81,6 @@ public class Feed extends Div implements AfterNavigationObserver {
         // posts from the database, and find a way to add those posts to our UI
         grid.addComponentColumn(post -> createCard(post));
         FullCalendar fullCalendar = new FullCalendar();
-        setEvents(fullCalendar);
         fullCalendar.getStyle().set("width","100%");
         fullCalendar.setWeekNumbersVisible(false);
         fullCalendar.addEntry(SamplePersonService.getEvents().get(2));
@@ -173,19 +165,20 @@ public class Feed extends Div implements AfterNavigationObserver {
         fullCalendar.setHeightAuto();
         fullCalendar.setSizeFull();
 
-        HL.add(feed,layout);
-        add(HL);
-
-    }
-
-    public void setEvents(FullCalendar calendar){
-
         List<Entry> getEvents;
 
         //load events created
         getEvents = SamplePersonService.getEvents();
 
-        calendar.addEntries(getEvents);
+        for (Entry ev:
+             getEvents) {
+
+            fullCalendar.addEntry(ev);
+
+        }
+
+        HL.add(feed,layout);
+        add(HL);
 
     }
 
@@ -204,24 +197,18 @@ public class Feed extends Div implements AfterNavigationObserver {
     private void shareEvent(String titl,LocalDateTime start,String descr,LocalDateTime endDate,UserData user) {
 
 
-        String[] links =
-        {   "https://meet.google.com/xcg-rboq-piy",
-             "https://meet.google.com/xba-hshs-zky",
-            "https://meet.google.com/cme-ujqd-vpk",
-            "https://meet.google.com/syk-jtxw-trz",
-            "https://meet.google.com/njw-xwsv-kaj",
-            "https://meet.google.com/vra-vgvf-qfn"
-         };
+        List<String> myList = Arrays.asList("https://meet.google.com/xcg-rboq-piy","https://meet.google.com/xba-hshs-zky","https://meet.google.com/cme-ujqd-vpk", "https://meet.google.com/njw-xwsv-kaj", "https://meet.google.com/syk-jtxw-trz", "https://meet.google.com/vra-vgvf-qfn");
+        Random r = new Random();
+        int randomitem = r.nextInt(myList.size());
 
-
-        Notification.show("Description is "+descr);
+        String link = myList.get(randomitem);
 
         String eventDetails = "Title : "+titl+" \n " +
                 "description : "+descr+" "+
                 "Date and time : "+start.toString();
-        eventDetails.concat("\n "+links[1]);
+        eventDetails.concat("\n here's the link"+link);
 
-        personService.createEvent(titl, person.getEmail(), descr, start.toString(),links[1].toString(), endDate.toString());
+        personService.createEvent(titl, person.getEmail(), descr, start.toString(),link.toString(), endDate.toString());
 
         if(!eventDetails.isEmpty()){
 
@@ -245,7 +232,7 @@ public class Feed extends Div implements AfterNavigationObserver {
         }
     }
 
-    private HorizontalLayout createCard(MainView.Post post) {
+    public HorizontalLayout createCard(MainView.Post post) {
         // this card represent each and every post's design
         // can do that here
 
@@ -479,29 +466,6 @@ public class Feed extends Div implements AfterNavigationObserver {
 
     }
 
-    private double containsHateSpeech(String txt) {
-
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-// Configure API key authorization: Apikey
-        ApiKeyAuth Apikey = (ApiKeyAuth) defaultClient.getAuthentication("Apikey");
-        Apikey.setApiKey("25bf2682-5daf-42b2-bcc7-1e78409ea010");
-// Uncomment the following line to set a prefix for the API key, e.g. "Token" (defaults to null)
-        //Apikey.setApiKeyPrefix("25bf2682-5daf-42b2-bcc7-1e78409ea010");
-        AnalyticsApi apiInstance = new AnalyticsApi();
-        HateSpeechAnalysisRequest input = new HateSpeechAnalysisRequest(); // HateSpeechAnalysisRequest | Input hate speech analysis request
-        input.setTextToAnalyze(txt);
-
-        try {
-            HateSpeechAnalysisResponse result = apiInstance.analyticsHateSpeech(input);
-            return result.getHateSpeechScoreResult();
-        } catch (ApiException e) {
-            Notification.show("Exception when calling AnalyticsApi#analyticsHateSpeech");
-            e.printStackTrace();
-        }
-
-        return 0;
-
-    }
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
